@@ -1,7 +1,7 @@
 /*
-Package task_data provides functionality for ...
+Package data provides functionality for connect to DataBase
 */
-package task_data
+package data
 
 import (
 	"database/sql"
@@ -12,7 +12,7 @@ import (
 
 var ConnStr = "user=postgres password=postgres dbname=exercise_database sslmode=disable"
 
-//GetResult ...
+// GetResult ...
 func GetResult() (string, string) {
 	db, errdb := sql.Open("postgres", ConnStr)
 	if errdb != nil {
