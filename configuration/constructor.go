@@ -74,3 +74,6 @@ func SubMessage(flagStr string) string {
 
 	return date + headStr + replyMessage
 }
+
+/*В 4.5 раза быстрее среза, а расходует на 30% меньше памяти. И всего 6 аллокаций памяти!
+Когда собираете строку из большого числа кусочков — используйте strings.Builder.*/
