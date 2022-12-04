@@ -1,9 +1,5 @@
 package configuration
 
-import (
-	"time"
-)
-
 var mainValueCurrency = make(map[string]string)
 
 var nameCurrency = []string{"US Dollar", "Euro", "British Pound", "Swiss Franc", "Russian Ruble", "Ukrainian Hryvnia", "Belarusian Ruble", "Kazakhstani Tenge"}
@@ -12,7 +8,7 @@ var flagsCurrency = []string{"🇺🇸", "🇪🇺", "🇬🇧", "🇨🇭", "�
 
 var date string
 
-func initializeMassage(arrCurrency [8]string, dateReport time.Time) string {
+func InitializeMassage(arrCurrency [8]string, dateReport string) string {
 	mainValueCurrency["🇺🇸"] = arrCurrency[0]
 	mainValueCurrency["🇪🇺"] = arrCurrency[1]
 	mainValueCurrency["🇬🇧"] = arrCurrency[2]
@@ -23,15 +19,15 @@ func initializeMassage(arrCurrency [8]string, dateReport time.Time) string {
 	mainValueCurrency["🇧🇾"] = arrCurrency[6]
 	mainValueCurrency["🇰🇿"] = arrCurrency[7]
 
-	date = dateReport.Format(time.RFC850)
+	date = dateReport
 	date += "\n"
 
-	message := makeMessage("🇺🇸")
+	message := MakeMessage("🇺🇸")
 
 	return message
 }
 
-func makeMessage(flagStr string) string {
+func MakeMessage(flagStr string) string {
 	var message, headStr string
 
 	for k, val := range flagsCurrency {
@@ -77,3 +73,4 @@ func SubMessage(flagStr string) string {
 
 /*В 4.5 раза быстрее среза, а расходует на 30% меньше памяти. И всего 6 аллокаций памяти!
 Когда собираете строку из большого числа кусочков — используйте strings.Builder.*/
+//text/template

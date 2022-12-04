@@ -6,8 +6,10 @@ package main
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/matthew/rateBot/configuration"
+	"github.com/matthew/rateBot/data"
 	"github.com/matthew/rateBot/handler"
 	"log"
+	"strconv"
 )
 
 // telegramBot connect by token
@@ -36,8 +38,12 @@ func main() {
 		if update.Message != nil {
 			log.Printf("[%s] %d %d %s", update.Message.From.UserName, update.Message.From.ID, update.Message.Chat.ID, update.Message.Text) //print user message
 
-			// check exception
-			if handler.CheckExceptionMenu(update.Message.Text) == false && handler.CheckExceptionCommand(update.Message.Command()) == false {
+			//check exceptions
+			resultCheckExceptionMenu := handler.CheckExceptionMenu(update.Message.Text)
+			resultCheckExceptionCommand := handler.CheckExceptionCommand(update.Message.Command())
+			resultCheckExceptionDB, answerDB := handler.CheckExceptionDB(update.Message.Text, update.Message.Chat.ID)
+
+			if resultCheckExceptionMenu == false && resultCheckExceptionCommand == false && resultCheckExceptionDB == false {
 				reply := "Non understandable message.\n" + "Try again." //replying on non designated message
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, reply)
 				bot.Send(msg)
@@ -60,11 +66,15 @@ func main() {
 				case "Easy":
 					handler.EasyExercise(bot, update.Message.Chat)
 				case "I give-up! Give me one more, easy":
+					data.IncreaseUserProgress(update.Message.Chat.ID)
 					handler.EasyExercise(bot, update.Message.Chat)
-				case "I give-up! Give me one more, medium":
-					handler.MediumExercise(bot, update.Message.Chat)
 				case "Medium":
 					handler.MediumExercise(bot, update.Message.Chat)
+				case "I give-up! Give me one more, medium":
+					data.IncreaseUserProgress(update.Message.Chat.ID)
+					handler.MediumExercise(bot, update.Message.Chat)
+				case "Show/Drop points":
+					handler.Statistics(bot, update.Message.Chat)
 				case "Hide Menu":
 					greetingDescr := "Please select want you want\n" +
 						"You can check rate or play the game"
@@ -72,6 +82,10 @@ func main() {
 
 					msg.ReplyMarkup = tgbotapi.ReplyKeyboardRemove{RemoveKeyboard: true}
 					bot.Send(msg)
+				case "New easy exercise":
+					handler.EasyExercise(bot, update.Message.Chat)
+				case "New medium exercise":
+					handler.MediumExercise(bot, update.Message.Chat)
 				case "Back":
 					greetingDescr := "Please select want you want\n" +
 						"You can check rate or play the game"
@@ -82,10 +96,36 @@ func main() {
 					handler.PlayGame(bot, update.Message.Chat)
 				}
 
+				//reply on successful result from answerDB
+				switch update.Message.Text {
+				case answerDB:
+					totalScore, exerciseValue := handler.GoalAndTotal(update.Message.Chat.ID)
+
+					//
+					userProgressValue := data.UserProgress(update.Message.Chat.ID)
+					maxIdEasy, _ := data.MaxIdValue()
+
+					var keyboard tgbotapi.ReplyKeyboardMarkup
+
+					if userProgressValue <= maxIdEasy {
+						keyboard = handler.NewEasyExercise()
+					} else {
+						keyboard = handler.NewMediumExercise()
+					}
+
+					msgData := "Well Done!\n" + "You got +" + strconv.Itoa(exerciseValue) + "\n" + "Total Score:" + strconv.Itoa(totalScore)
+
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, msgData)
+
+					msg.ReplyMarkup = keyboard
+					bot.Send(msg)
+				}
+
 			}
 		} else if update.CallbackQuery != nil {
 			var replyStr string
 
+			//
 			switch update.CallbackQuery.Data {
 			case "US":
 				replyStr = "🇺🇸"
@@ -103,6 +143,10 @@ func main() {
 				replyStr = "🇧🇾"
 			case "KZ":
 				replyStr = "🇰🇿"
+			case "YES":
+				replyStr = "Yes"
+			case "NO":
+				replyStr = "No"
 			default:
 				replyStr = "Hide"
 			}
@@ -117,8 +161,11 @@ func main() {
 
 			editLastMessage := tgbotapi.NewEditMessageReplyMarkup(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID, emptyKeyBoard)
 
-			if replyStr == "Hide" {
+			if replyStr == "Hide" || replyStr == "No" || replyStr == "Yes" {
 				bot.Request(editLastMessage)
+				if replyStr == "Yes" {
+					handler.ResetStatistics(bot, update.CallbackQuery.Message.Chat)
+				}
 			} else {
 
 				bot.Request(editLastMessage)
@@ -138,4 +185,5 @@ func main() {
 correct parsind json date
 add date in message
 add comand in decs
+join points from table
 */

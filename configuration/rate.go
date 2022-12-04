@@ -1,254 +1,225 @@
-// Package configuration /*
+// Package configuration decode json message  /*
 package configuration
 
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
-	"time"
 )
 
-// CurrencyData represents ...
 type CurrencyData struct {
-	Table      string    `json:"table"`
-	Rates      Rates     `json:"rates"`
-	Lastupdate time.Time `json:"lastupdate"`
+	Success bool   `json:"success"`
+	Base    string `json:"base"`
+	Date    string `json:"date"`
+	Rates   Rates  `json:"rates"`
 }
 type Rates struct {
-	Aed       float64 `json:"AED"`
-	Afn       float64 `json:"AFN"`
-	All       float64 `json:"ALL"`
-	Amd       float64 `json:"AMD"`
-	Ang       float64 `json:"ANG"`
-	Aoa       float64 `json:"AOA"`
-	Ars       float64 `json:"ARS"`
-	Aud       float64 `json:"AUD"`
-	Awg       float64 `json:"AWG"`
-	Azn       float64 `json:"AZN"`
-	Bam       float64 `json:"BAM"`
-	Bbd       int     `json:"BBD"`
-	Bdt       float64 `json:"BDT"`
-	Bgn       float64 `json:"BGN"`
-	Bhd       float64 `json:"BHD"`
-	Bif       float64 `json:"BIF"`
-	Bmd       int     `json:"BMD"`
-	Bnd       float64 `json:"BND"`
-	Bob       float64 `json:"BOB"`
-	Brl       float64 `json:"BRL"`
-	Bsd       int     `json:"BSD"`
-	Btc       float64 `json:"BTC"`
-	Btn       float64 `json:"BTN"`
-	Bts       float64 `json:"BTS"`
-	Bwp       float64 `json:"BWP"`
-	Byn       float64 `json:"BYN"`
-	Bzd       float64 `json:"BZD"`
-	Cad       float64 `json:"CAD"`
-	Cdf       float64 `json:"CDF"`
-	Chf       float64 `json:"CHF"`
-	Clf       float64 `json:"CLF"`
-	Clp       float64 `json:"CLP"`
-	Cnh       float64 `json:"CNH"`
-	Cny       float64 `json:"CNY"`
-	Cop       float64 `json:"COP"`
-	Crc       float64 `json:"CRC"`
-	Cuc       int     `json:"CUC"`
-	Cup       float64 `json:"CUP"`
-	Cve       float64 `json:"CVE"`
-	Czk       float64 `json:"CZK"`
-	Dash      float64 `json:"DASH"`
-	Djf       float64 `json:"DJF"`
-	Dkk       float64 `json:"DKK"`
-	Doge      float64 `json:"DOGE"`
-	Dop       float64 `json:"DOP"`
-	Dzd       float64 `json:"DZD"`
-	Egp       float64 `json:"EGP"`
-	Ern       int     `json:"ERN"`
-	Etb       float64 `json:"ETB"`
-	Eth       float64 `json:"ETH"`
-	Eur       float64 `json:"EUR"`
-	Fjd       float64 `json:"FJD"`
-	Fkp       float64 `json:"FKP"`
-	Gbp       float64 `json:"GBP"`
-	Gel       float64 `json:"GEL"`
-	Ggp       float64 `json:"GGP"`
-	Ghs       float64 `json:"GHS"`
-	Gip       float64 `json:"GIP"`
-	Gmd       int     `json:"GMD"`
-	Gnf       float64 `json:"GNF"`
-	Gtq       float64 `json:"GTQ"`
-	Gyd       float64 `json:"GYD"`
-	Hkd       float64 `json:"HKD"`
-	Hnl       float64 `json:"HNL"`
-	Hrk       float64 `json:"HRK"`
-	Htg       float64 `json:"HTG"`
-	Huf       float64 `json:"HUF"`
-	Idr       float64 `json:"IDR"`
-	Ils       float64 `json:"ILS"`
-	Imp       float64 `json:"IMP"`
-	Inr       float64 `json:"INR"`
-	Iqd       float64 `json:"IQD"`
-	Irr       int     `json:"IRR"`
-	Isk       float64 `json:"ISK"`
-	Jep       float64 `json:"JEP"`
-	Jmd       float64 `json:"JMD"`
-	Jod       float64 `json:"JOD"`
-	Jpy       float64 `json:"JPY"`
-	Kes       float64 `json:"KES"`
-	Kgs       float64 `json:"KGS"`
-	Khr       float64 `json:"KHR"`
-	Kmf       float64 `json:"KMF"`
-	Kpw       int     `json:"KPW"`
-	Krw       float64 `json:"KRW"`
-	Kwd       float64 `json:"KWD"`
-	Kyd       float64 `json:"KYD"`
-	Kzt       float64 `json:"KZT"`
-	Lak       float64 `json:"LAK"`
-	Lbp       float64 `json:"LBP"`
-	Ld        int     `json:"LD"`
-	Lkr       float64 `json:"LKR"`
-	Lrd       float64 `json:"LRD"`
-	Lsl       float64 `json:"LSL"`
-	Ltc       float64 `json:"LTC"`
-	Lyd       float64 `json:"LYD"`
-	Mad       float64 `json:"MAD"`
-	Mdl       float64 `json:"MDL"`
-	Mga       float64 `json:"MGA"`
-	Mkd       float64 `json:"MKD"`
-	Mmk       float64 `json:"MMK"`
-	Mnt       float64 `json:"MNT"`
-	Mop       float64 `json:"MOP"`
-	Mro       float64 `json:"MRO"`
-	Mru       float64 `json:"MRU"`
-	Mur       float64 `json:"MUR"`
-	Mvr       float64 `json:"MVR"`
-	Mwk       float64 `json:"MWK"`
-	Mxn       float64 `json:"MXN"`
-	Myr       float64 `json:"MYR"`
-	Mzn       float64 `json:"MZN"`
-	Nad       float64 `json:"NAD"`
-	Ngn       float64 `json:"NGN"`
-	Nio       float64 `json:"NIO"`
-	Nok       float64 `json:"NOK"`
-	Npr       float64 `json:"NPR"`
-	Nxt       float64 `json:"NXT"`
-	Nzd       float64 `json:"NZD"`
-	Omr       float64 `json:"OMR"`
-	Pab       int     `json:"PAB"`
-	Pen       float64 `json:"PEN"`
-	Pgk       float64 `json:"PGK"`
-	Php       float64 `json:"PHP"`
-	Pkr       float64 `json:"PKR"`
-	Pln       float64 `json:"PLN"`
-	Pyg       float64 `json:"PYG"`
-	Qar       float64 `json:"QAR"`
-	Ron       float64 `json:"RON"`
-	Rsd       float64 `json:"RSD"`
-	Rub       float64 `json:"RUB"`
-	Rwf       float64 `json:"RWF"`
-	Sar       float64 `json:"SAR"`
-	Sbd       float64 `json:"SBD"`
-	Scr       float64 `json:"SCR"`
-	Sdg       float64 `json:"SDG"`
-	Sek       float64 `json:"SEK"`
-	Sgd       float64 `json:"SGD"`
-	Shp       float64 `json:"SHP"`
-	Sll       int     `json:"SLL"`
-	Sos       float64 `json:"SOS"`
-	Srd       float64 `json:"SRD"`
-	Ssp       float64 `json:"SSP"`
-	Std       float64 `json:"STD"`
-	Stn       float64 `json:"STN"`
-	Str       float64 `json:"STR"`
-	Svc       float64 `json:"SVC"`
-	Syp       float64 `json:"SYP"`
-	Szl       float64 `json:"SZL"`
-	Thb       float64 `json:"THB"`
-	Tjs       float64 `json:"TJS"`
-	Tmt       float64 `json:"TMT"`
-	Tnd       float64 `json:"TND"`
-	Top       float64 `json:"TOP"`
-	Try       float64 `json:"TRY"`
-	Ttd       float64 `json:"TTD"`
-	Twd       float64 `json:"TWD"`
-	Tzs       float64 `json:"TZS"`
-	Uah       float64 `json:"UAH"`
-	Ugx       float64 `json:"UGX"`
-	Usd       float64 `json:"USD"`
-	Uyu       float64 `json:"UYU"`
-	Uzs       float64 `json:"UZS"`
-	VefBlkmkt float64 `json:"VEF_BLKMKT"`
-	VefDicom  float64 `json:"VEF_DICOM"`
-	VefDipro  float64 `json:"VEF_DIPRO"`
-	Ves       float64 `json:"VES"`
-	Vnd       float64 `json:"VND"`
-	Vuv       float64 `json:"VUV"`
-	Wst       float64 `json:"WST"`
-	Xaf       float64 `json:"XAF"`
-	Xag       float64 `json:"XAG"`
-	Xau       float64 `json:"XAU"`
-	Xcd       float64 `json:"XCD"`
-	Xdr       float64 `json:"XDR"`
-	Xmr       float64 `json:"XMR"`
-	Xof       float64 `json:"XOF"`
-	Xpd       float64 `json:"XPD"`
-	Xpf       float64 `json:"XPF"`
-	Xpt       float64 `json:"XPT"`
-	Xrp       float64 `json:"XRP"`
-	Yer       float64 `json:"YER"`
-	Zar       float64 `json:"ZAR"`
-	Zmw       float64 `json:"ZMW"`
-	Zwl       int     `json:"ZWL"`
-	Nmc       float64 `json:"NMC"`
-	Ppc       float64 `json:"PPC"`
-	Nvc       float64 `json:"NVC"`
-	Xpm       float64 `json:"XPM"`
-	Eac       float64 `json:"EAC"`
-	Vtc       float64 `json:"VTC"`
-	Emc       float64 `json:"EMC"`
-	Fct       float64 `json:"FCT"`
+	AED float64 `json:"AED"`
+	AFN float64 `json:"AFN"`
+	ALL float64 `json:"ALL"`
+	AMD float64 `json:"AMD"`
+	ANG float64 `json:"ANG"`
+	AOA float64 `json:"AOA"`
+	ARS float64 `json:"ARS"`
+	AUD float64 `json:"AUD"`
+	AWG float64 `json:"AWG"`
+	AZN float64 `json:"AZN"`
+	BAM float64 `json:"BAM"`
+	BBD float64 `json:"BBD"`
+	BDT float64 `json:"BDT"`
+	BGN float64 `json:"BGN"`
+	BHD float64 `json:"BHD"`
+	BIF float64 `json:"BIF"`
+	BMD float64 `json:"BMD"`
+	BND float64 `json:"BND"`
+	BOB float64 `json:"BOB"`
+	BRL float64 `json:"BRL"`
+	BSD float64 `json:"BSD"`
+	BTC float64 `json:"BTC"`
+	BTN float64 `json:"BTN"`
+	BWP float64 `json:"BWP"`
+	BYN float64 `json:"BYN"`
+	BZD float64 `json:"BZD"`
+	CAD float64 `json:"CAD"`
+	CDF float64 `json:"CDF"`
+	CHF float64 `json:"CHF"`
+	CLF float64 `json:"CLF"`
+	CLP float64 `json:"CLP"`
+	CNH float64 `json:"CNH"`
+	CNY float64 `json:"CNY"`
+	COP float64 `json:"COP"`
+	CRC float64 `json:"CRC"`
+	CUC float64 `json:"CUC"`
+	CUP float64 `json:"CUP"`
+	CVE float64 `json:"CVE"`
+	CZK float64 `json:"CZK"`
+	DJF float64 `json:"DJF"`
+	DKK float64 `json:"DKK"`
+	DOP float64 `json:"DOP"`
+	DZD float64 `json:"DZD"`
+	EGP float64 `json:"EGP"`
+	ERN float64 `json:"ERN"`
+	ETB float64 `json:"ETB"`
+	EUR float64 `json:"EUR"`
+	FJD float64 `json:"FJD"`
+	FKP float64 `json:"FKP"`
+	GBP float64 `json:"GBP"`
+	GEL float64 `json:"GEL"`
+	GGP float64 `json:"GGP"`
+	GHS float64 `json:"GHS"`
+	GIP float64 `json:"GIP"`
+	GMD float64 `json:"GMD"`
+	GNF float64 `json:"GNF"`
+	GTQ float64 `json:"GTQ"`
+	GYD float64 `json:"GYD"`
+	HKD float64 `json:"HKD"`
+	HNL float64 `json:"HNL"`
+	HRK float64 `json:"HRK"`
+	HTG float64 `json:"HTG"`
+	HUF float64 `json:"HUF"`
+	IDR float64 `json:"IDR"`
+	ILS float64 `json:"ILS"`
+	IMP float64 `json:"IMP"`
+	INR float64 `json:"INR"`
+	IQD float64 `json:"IQD"`
+	IRR float64 `json:"IRR"`
+	ISK float64 `json:"ISK"`
+	JEP float64 `json:"JEP"`
+	JMD float64 `json:"JMD"`
+	JOD float64 `json:"JOD"`
+	JPY float64 `json:"JPY"`
+	KES float64 `json:"KES"`
+	KGS float64 `json:"KGS"`
+	KHR float64 `json:"KHR"`
+	KMF float64 `json:"KMF"`
+	KPW float64 `json:"KPW"`
+	KRW float64 `json:"KRW"`
+	KWD float64 `json:"KWD"`
+	KYD float64 `json:"KYD"`
+	KZT float64 `json:"KZT"`
+	LAK float64 `json:"LAK"`
+	LBP float64 `json:"LBP"`
+	LKR float64 `json:"LKR"`
+	LRD float64 `json:"LRD"`
+	LSL float64 `json:"LSL"`
+	LYD float64 `json:"LYD"`
+	MAD float64 `json:"MAD"`
+	MDL float64 `json:"MDL"`
+	MGA float64 `json:"MGA"`
+	MKD float64 `json:"MKD"`
+	MMK float64 `json:"MMK"`
+	MNT float64 `json:"MNT"`
+	MOP float64 `json:"MOP"`
+	MRU float64 `json:"MRU"`
+	MUR float64 `json:"MUR"`
+	MVR float64 `json:"MVR"`
+	MWK float64 `json:"MWK"`
+	MXN float64 `json:"MXN"`
+	MYR float64 `json:"MYR"`
+	MZN float64 `json:"MZN"`
+	NAD float64 `json:"NAD"`
+	NGN float64 `json:"NGN"`
+	NIO float64 `json:"NIO"`
+	NOK float64 `json:"NOK"`
+	NPR float64 `json:"NPR"`
+	NZD float64 `json:"NZD"`
+	OMR float64 `json:"OMR"`
+	PAB float64 `json:"PAB"`
+	PEN float64 `json:"PEN"`
+	PGK float64 `json:"PGK"`
+	PHP float64 `json:"PHP"`
+	PKR float64 `json:"PKR"`
+	PLN float64 `json:"PLN"`
+	PYG float64 `json:"PYG"`
+	QAR float64 `json:"QAR"`
+	RON float64 `json:"RON"`
+	RSD float64 `json:"RSD"`
+	RUB float64 `json:"RUB"`
+	RWF float64 `json:"RWF"`
+	SAR float64 `json:"SAR"`
+	SBD float64 `json:"SBD"`
+	SCR float64 `json:"SCR"`
+	SDG float64 `json:"SDG"`
+	SEK float64 `json:"SEK"`
+	SGD float64 `json:"SGD"`
+	SHP float64 `json:"SHP"`
+	SLL float64 `json:"SLL"`
+	SOS float64 `json:"SOS"`
+	SRD float64 `json:"SRD"`
+	SSP float64 `json:"SSP"`
+	STD float64 `json:"STD"`
+	STN float64 `json:"STN"`
+	SVC float64 `json:"SVC"`
+	SYP float64 `json:"SYP"`
+	SZL float64 `json:"SZL"`
+	THB float64 `json:"THB"`
+	TJS float64 `json:"TJS"`
+	TMT float64 `json:"TMT"`
+	TND float64 `json:"TND"`
+	TOP float64 `json:"TOP"`
+	TRY float64 `json:"TRY"`
+	TTD float64 `json:"TTD"`
+	TWD float64 `json:"TWD"`
+	TZS float64 `json:"TZS"`
+	UAH float64 `json:"UAH"`
+	UGX float64 `json:"UGX"`
+	USD float64 `json:"USD"`
+	UYU float64 `json:"UYU"`
+	UZS float64 `json:"UZS"`
+	VES float64 `json:"VES"`
+	VND float64 `json:"VND"`
+	VUV float64 `json:"VUV"`
+	WST float64 `json:"WST"`
+	XAF float64 `json:"XAF"`
+	XAG float64 `json:"XAG"`
+	XAU float64 `json:"XAU"`
+	XCD float64 `json:"XCD"`
+	XDR float64 `json:"XDR"`
+	XOF float64 `json:"XOF"`
+	XPD float64 `json:"XPD"`
+	XPF float64 `json:"XPF"`
+	XPT float64 `json:"XPT"`
+	YER float64 `json:"YER"`
+	ZAR float64 `json:"ZAR"`
+	ZMW float64 `json:"ZMW"`
+	ZWL float64 `json:"ZWL"`
 }
 
 // ParsingJSON ...
 func ParsingJSON() string {
-	url := "https://cdn.cur.su/api/latest.json"
-
-	response, err := http.Get(url)
+	client := http.Client{}
+	request, err := http.NewRequest("GET", "https://api.exchangerate.host/latest?base=USD", nil)
 	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(response.StatusCode)
-
-	defer response.Body.Close()
-
-	data, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
 
-	var mainData CurrencyData
+	response, err := client.Do(request)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	if err := json.Unmarshal(data, &mainData); err != nil {
+	var rateData CurrencyData
+
+	if err := json.NewDecoder(response.Body).Decode(&rateData); err != nil {
 		fmt.Println("Can not unmarshal JSON")
 	}
 
 	//prepare new message
-	var usd = fmt.Sprintf("%.2f", mainData.Rates.Usd)
-	var eur = fmt.Sprintf("%.2f", mainData.Rates.Eur)
-	var gbp = fmt.Sprintf("%.2f", mainData.Rates.Gbp)
-	var chf = fmt.Sprintf("%.2f", mainData.Rates.Chf)
+	var usd = fmt.Sprintf("%.2f", rateData.Rates.USD)
+	var eur = fmt.Sprintf("%.2f", rateData.Rates.EUR)
+	var gbp = fmt.Sprintf("%.2f", rateData.Rates.GBP)
+	var chf = fmt.Sprintf("%.2f", rateData.Rates.CHF)
 
-	var rub = fmt.Sprintf("%.2f", mainData.Rates.Rub)
-	var uah = fmt.Sprintf("%.2f", mainData.Rates.Uah)
-	var byn = fmt.Sprintf("%.2f", mainData.Rates.Byn)
-	var kzt = fmt.Sprintf("%.2f", mainData.Rates.Kzt)
+	var rub = fmt.Sprintf("%.2f", rateData.Rates.RUB)
+	var uah = fmt.Sprintf("%.2f", rateData.Rates.UAH)
+	var byn = fmt.Sprintf("%.2f", rateData.Rates.BYN)
+	var kzt = fmt.Sprintf("%.2f", rateData.Rates.KZT)
 
 	var arrCurrency = [8]string{usd, eur, gbp, chf, rub, uah, byn, kzt}
 
-	dateReport := mainData.Lastupdate
+	dateReport := rateData.Date
 
-	result := initializeMassage(arrCurrency, dateReport)
+	result := InitializeMassage(arrCurrency, dateReport)
 
 	return result
 }

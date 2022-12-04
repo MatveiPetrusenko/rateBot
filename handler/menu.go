@@ -3,6 +3,8 @@ package handler
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/matthew/rateBot/configuration"
+	"github.com/matthew/rateBot/data"
+	"strconv"
 )
 
 var InlineKeyboard = tgbotapi.NewInlineKeyboardMarkup(
@@ -56,7 +58,7 @@ func GetInTouch(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 }
 
 // PlayGame run keyboard
-func PlayGame(bot *tgbotapi.BotAPI, chatID *tgbotapi.Chat) {
+func PlayGame(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	numericKeyboard := tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton("Easy"),
@@ -65,16 +67,28 @@ func PlayGame(bot *tgbotapi.BotAPI, chatID *tgbotapi.Chat) {
 			tgbotapi.NewKeyboardButton("Medium"),
 		),
 		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Show/Drop points"),
+		),
+		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton("Hide Menu"),
 		),
 	)
-	msg := tgbotapi.NewMessage(chatID.ID, "Choose difficult:")
+	msg := tgbotapi.NewMessage(chat.ID, "Choose difficult:")
 	msg.ReplyMarkup = numericKeyboard
 	bot.Send(msg)
+
+	result := data.CheckUser(chat.ID)
+
+	switch result {
+	case false:
+		data.AddUser(chat.ID, chat.UserName)
+	default:
+		return
+	}
 }
 
 // EasyExercise easy task for user
-func EasyExercise(bot *tgbotapi.BotAPI, chatID *tgbotapi.Chat) {
+func EasyExercise(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	numericKeyboardEasy := tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton("I give-up! Give me one more, easy"),
@@ -84,22 +98,32 @@ func EasyExercise(bot *tgbotapi.BotAPI, chatID *tgbotapi.Chat) {
 		),
 	)
 
-	msgEasy := tgbotapi.NewMessage(chatID.ID, "Difficult: Easy")
+	exerciseData := data.GetEasyResult(chat.ID)
+
+	if exerciseData == "Exercises is over" {
+		numericKeyboardBack := tgbotapi.NewReplyKeyboard(
+			tgbotapi.NewKeyboardButtonRow(
+				tgbotapi.NewKeyboardButton("Back"),
+			),
+		)
+
+		msgTask := tgbotapi.NewMessage(chat.ID, exerciseData)
+		msgTask.ReplyMarkup = numericKeyboardBack
+
+		bot.Send(msgTask)
+		return
+	}
+
+	msgEasy := tgbotapi.NewMessage(chat.ID, "Difficult: Easy")
+	msgTask := tgbotapi.NewMessage(chat.ID, exerciseData)
+
 	msgEasy.ReplyMarkup = numericKeyboardEasy
 	bot.Send(msgEasy)
-
-	// out of order
-	/*	first, second := data.GetResult()
-
-		exMsgF := tgbotapi.NewMessage(chatID.ID, first)
-		bot.Send(exMsgF)
-
-		exMsgS := tgbotapi.NewMessage(chatID.ID, second)
-		bot.Send(exMsgS)*/
+	bot.Send(msgTask)
 }
 
 // MediumExercise medium task for user
-func MediumExercise(bot *tgbotapi.BotAPI, chatID *tgbotapi.Chat) {
+func MediumExercise(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	numericKeyboardMedium := tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton("I give-up! Give me one more, medium"),
@@ -109,13 +133,93 @@ func MediumExercise(bot *tgbotapi.BotAPI, chatID *tgbotapi.Chat) {
 		),
 	)
 
-	msgMedium := tgbotapi.NewMessage(chatID.ID, "Difficult: Medium")
-	msgMedium.ReplyMarkup = numericKeyboardMedium
-	bot.Send(msgMedium)
+	exerciseData := data.GetMediumResult(chat.ID)
 
-	exStr := "Some text, medium exercise"
-	exMsg := tgbotapi.NewMessage(chatID.ID, exStr)
-	bot.Send(exMsg)
+	if exerciseData == "Exercises is over" || exerciseData == "Do easy level to unlock medium" {
+		numericKeyboardBack := tgbotapi.NewReplyKeyboard(
+			tgbotapi.NewKeyboardButtonRow(
+				tgbotapi.NewKeyboardButton("Back"),
+			),
+		)
+
+		msgTask := tgbotapi.NewMessage(chat.ID, exerciseData)
+		msgTask.ReplyMarkup = numericKeyboardBack
+
+		bot.Send(msgTask)
+		return
+	}
+
+	msgEasy := tgbotapi.NewMessage(chat.ID, "Difficult: Medium")
+	msgTask := tgbotapi.NewMessage(chat.ID, exerciseData)
+
+	msgEasy.ReplyMarkup = numericKeyboardMedium
+	bot.Send(msgEasy)
+	bot.Send(msgTask)
+}
+
+// NewEasyExercise ...
+func NewEasyExercise() tgbotapi.ReplyKeyboardMarkup {
+	numericKeyboardEasy := tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("New easy exercise"),
+		),
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Back"),
+		),
+	)
+
+	return numericKeyboardEasy
+}
+
+// NewMediumExercise ...
+func NewMediumExercise() tgbotapi.ReplyKeyboardMarkup {
+	numericKeyboardMedium := tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("New medium exercise"),
+		),
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton("Back"),
+		),
+	)
+
+	return numericKeyboardMedium
+}
+
+// Statistics ...
+func Statistics(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
+	InlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData("Yes", "YES"),
+			tgbotapi.NewInlineKeyboardButtonData("No", "NO"),
+		),
+	)
+
+	total := data.UserScore(chat.ID)
+
+	msgData := "You Total Score:" + strconv.Itoa(total) + "\n" + "Would you like to reset statistics and progress?"
+
+	replyStatsStr := tgbotapi.NewMessage(chat.ID, msgData)
+
+	replyStatsStr.ReplyMarkup = InlineKeyboard
+	bot.Send(replyStatsStr)
+}
+
+// ResetStatistics ...
+func ResetStatistics(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
+	data.ResetUserScoreAndProgress(chat.ID)
+	msgData := "Statistics and progress was reset"
+
+	msg := tgbotapi.NewMessage(chat.ID, msgData)
+	bot.Request(msg)
+}
+
+// GoalAndTotal ...
+func GoalAndTotal(userId int64) (int, int) {
+	data.IncreaseUserProgress(userId)
+
+	totalValue, exerciseValue := data.IncreaseUserScore(userId)
+
+	return totalValue, exerciseValue
 }
 
 // CheckExceptionMenu return result of check on exceptions (textMessage)
@@ -125,8 +229,11 @@ func CheckExceptionMenu(textMessage string) bool {
 		"I give-up! Give me one more, easy":   true,
 		"I give-up! Give me one more, medium": true,
 		"Medium":                              true,
+		"Show/Drop points":                    true,
 		"Hide Menu":                           true,
 		"Back":                                true,
+		"New easy exercise":                   true,
+		"New medium exercise":                 true,
 	}
 
 	_, ok := exceptionString[textMessage]
@@ -151,5 +258,16 @@ func CheckExceptionCommand(botCommand string) bool {
 		return false
 	} else {
 		return true
+	}
+}
+
+// CheckExceptionDB ...
+func CheckExceptionDB(messageText string, userId int64) (bool, string) {
+	resultCheckAnswer := data.CheckAnswer(messageText, userId)
+
+	if resultCheckAnswer {
+		return true, messageText
+	} else {
+		return false, ""
 	}
 }
