@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  app-tgbot:
+    build: ./rateBot
+    #command: ./app-tgbot
+    ports:
+      - "10.128.0.2:8000:8000"
+    depends_on:
+      - db
+    #entrypoint:
+    network_mode: bridge
+
+  db:
+    image: postgres:14.5
+    restart: always
+    build:
+      context: ./database
+    environment:
+      - POSTGRES_USER=bot_admin
+      - POSTGRES_PASSWORD=UbuLock!
+    ports:
+      - "10.128.0.2:5432:5432"
+    network_mode: bridge
+    #192.168.0.109

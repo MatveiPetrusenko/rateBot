@@ -2,7 +2,6 @@ package configuration_test
 
 import (
 	"fmt"
-	"github.com/matthew/rateBot/configuration"
 	"testing"
 )
 
@@ -39,7 +38,7 @@ func TestRecalculation(t *testing.T) {
 		name := fmt.Sprintf("key%q:rate(%s)", test.flagStr, mainValueCurrency[test.flagStr])
 
 		t.Run(name, func(t *testing.T) {
-			got := configuration.Recalculation(test.flagStr, mainValueCurrency)
+			got := Recalculation(test.flagStr, mainValueCurrency)
 			if got[test.wantFlag] != test.wantValue {
 				t.Errorf("got %q%s; want %q%s", test.wantFlag, got[test.wantFlag], test.wantFlag, test.wantValue)
 			}
