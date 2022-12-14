@@ -1,6 +1,4 @@
-/*
-package main provides functionality for ...
-*/
+// Package main provides functionality for run tgbot and processing messages /*
 package main
 
 import (
@@ -12,7 +10,7 @@ import (
 	"strconv"
 )
 
-// telegramBot connect by token
+// telegramBot represent opportunity connect by token from generated botFather
 func telegramBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
 	bot, err := tgbotapi.NewBotAPI("5147742910:AAGzy-TUkxpuLkEKej0kh2Z3gQJ1jICQgns")
 	if err != nil {
@@ -36,9 +34,9 @@ func main() {
 
 	for update := range updates {
 		if update.Message != nil {
-			log.Printf("[%s] %d %d %s", update.Message.From.UserName, update.Message.From.ID, update.Message.Chat.ID, update.Message.Text) //print user message
+			log.Printf("[%s] %d %d %s", update.Message.From.UserName, update.Message.From.ID, update.Message.Chat.ID, update.Message.Text) //print message from user
 
-			//check exceptions
+			//check some exceptions
 			resultCheckExceptionMenu := handler.CheckExceptionMenu(update.Message.Text)
 			resultCheckExceptionCommand := handler.CheckExceptionCommand(update.Message.Command())
 			resultCheckExceptionDB, answerDB := handler.CheckExceptionDB(update.Message.Text, update.Message.Chat.ID)
@@ -61,7 +59,7 @@ func main() {
 					handler.GetInTouch(bot, update.Message)
 				}
 
-				//handler navigation
+				//keyboard navigation
 				switch update.Message.Text {
 				case "Easy":
 					handler.EasyExercise(bot, update.Message.Chat)
@@ -96,13 +94,12 @@ func main() {
 					handler.PlayGame(bot, update.Message.Chat)
 				}
 
-				//reply on successful result from answerDB
+				//reply on successful result from DB
 				switch update.Message.Text {
 				case answerDB:
 					totalScore, exerciseValue := handler.GoalAndTotal(update.Message.Chat.ID)
 
-					//
-					userProgressValue := data.UserProgress(update.Message.Chat.ID)
+					userProgressValue := data.UserProgress(update.Message.Chat.ID) //get User progress from DB for send new keyboard depends on difficulty
 					maxIdEasy, _ := data.MaxIdValue()
 
 					var keyboard tgbotapi.ReplyKeyboardMarkup
@@ -125,7 +122,7 @@ func main() {
 		} else if update.CallbackQuery != nil {
 			var replyStr string
 
-			//
+			//selector for processing CallbackQuery
 			switch update.CallbackQuery.Data {
 			case "US":
 				replyStr = "🇺🇸"
@@ -151,16 +148,18 @@ func main() {
 				replyStr = "Hide"
 			}
 
-			// Respond to the callback query, telling Telegram to show the user a message with the data received.
+			//respond to the callback query, telling Telegram to show the user a message with the data received.
 			callback := tgbotapi.NewCallback(update.CallbackQuery.ID, replyStr)
 			if _, err := bot.Request(callback); err != nil {
 				panic(err)
 			}
 
+			//needs for switch off inline keyboards
 			emptyKeyBoard := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("", "_")))
 
 			editLastMessage := tgbotapi.NewEditMessageReplyMarkup(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID, emptyKeyBoard)
 
+			//reply and hide inline keyboard
 			if replyStr == "Hide" || replyStr == "No" || replyStr == "Yes" {
 				bot.Request(editLastMessage)
 				if replyStr == "Yes" {
@@ -180,10 +179,3 @@ func main() {
 		}
 	}
 }
-
-/*//todo
-correct parsind json date
-add date in message
-add comand in decs
-join points from table
-*/

@@ -1,3 +1,4 @@
+// Package handler serves for processing commands/keyboard menu/inline keyboard menu and for interactions with DB packages /*
 package handler
 
 import (
@@ -25,7 +26,7 @@ var InlineKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 	),
 )
 
-// Greeting sending greeting message for new user
+// Greeting sending greeting message for new users
 func Greeting(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	userName := message.From.UserName
 
@@ -41,7 +42,7 @@ func Greeting(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	}
 }
 
-// ExchangeRate sending rate
+// ExchangeRate sending message with rate
 func ExchangeRate(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	replyRateStr := tgbotapi.NewMessage(message.Chat.ID, configuration.ParsingJSON())
 
@@ -57,7 +58,7 @@ func GetInTouch(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	bot.Send(getintouchMsg)
 }
 
-// PlayGame run keyboard
+// PlayGame represent navigation keyboard for playing the game
 func PlayGame(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	numericKeyboard := tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
@@ -77,17 +78,18 @@ func PlayGame(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	msg.ReplyMarkup = numericKeyboard
 	bot.Send(msg)
 
+	//checking record for current user exists or not
 	result := data.CheckUser(chat.ID)
 
 	switch result {
 	case false:
-		data.AddUser(chat.ID, chat.UserName)
+		data.AddUser(chat.ID, chat.UserName) //creating record for collect statistic for new user
 	default:
 		return
 	}
 }
 
-// EasyExercise easy task for user
+// EasyExercise sending easy level task and keyboard depends on progress user
 func EasyExercise(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	numericKeyboardEasy := tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
@@ -98,6 +100,7 @@ func EasyExercise(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 		),
 	)
 
+	//getting string from DB or info about limit
 	exerciseData := data.GetEasyResult(chat.ID)
 
 	if exerciseData == "Exercises is over" {
@@ -122,7 +125,7 @@ func EasyExercise(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	bot.Send(msgTask)
 }
 
-// MediumExercise medium task for user
+// MediumExercise sending medium level task and keyboard depends on progress user
 func MediumExercise(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	numericKeyboardMedium := tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
@@ -133,6 +136,7 @@ func MediumExercise(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 		),
 	)
 
+	//getting string from DB or info about limit
 	exerciseData := data.GetMediumResult(chat.ID)
 
 	if exerciseData == "Exercises is over" || exerciseData == "Do easy level to unlock medium" {
@@ -157,7 +161,7 @@ func MediumExercise(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	bot.Send(msgTask)
 }
 
-// NewEasyExercise ...
+// NewEasyExercise represent sub keyboard for work on easy level task (New easy exercise/Back)
 func NewEasyExercise() tgbotapi.ReplyKeyboardMarkup {
 	numericKeyboardEasy := tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
@@ -171,7 +175,7 @@ func NewEasyExercise() tgbotapi.ReplyKeyboardMarkup {
 	return numericKeyboardEasy
 }
 
-// NewMediumExercise ...
+// NewMediumExercise represent sub keyboard for work on medium level task (New medium exercise/Back)
 func NewMediumExercise() tgbotapi.ReplyKeyboardMarkup {
 	numericKeyboardMedium := tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
@@ -185,7 +189,7 @@ func NewMediumExercise() tgbotapi.ReplyKeyboardMarkup {
 	return numericKeyboardMedium
 }
 
-// Statistics ...
+// Statistics serves for show results for user and represent inline keyboard (Yes/No)
 func Statistics(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	InlineKeyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
@@ -204,7 +208,7 @@ func Statistics(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	bot.Send(replyStatsStr)
 }
 
-// ResetStatistics ...
+// ResetStatistics dropping progress and score of user and sending message with notice
 func ResetStatistics(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	data.ResetUserScoreAndProgress(chat.ID)
 	msgData := "Statistics and progress was reset"
@@ -213,7 +217,7 @@ func ResetStatistics(bot *tgbotapi.BotAPI, chat *tgbotapi.Chat) {
 	bot.Request(msg)
 }
 
-// GoalAndTotal ...
+// GoalAndTotal return from DB total score and points for each solved task
 func GoalAndTotal(userId int64) (int, int) {
 	data.IncreaseUserProgress(userId)
 
@@ -222,7 +226,7 @@ func GoalAndTotal(userId int64) (int, int) {
 	return totalValue, exerciseValue
 }
 
-// CheckExceptionMenu return result of check on exceptions (textMessage)
+// CheckExceptionMenu return result of check on exceptions. Menu PlayGame (textMessage)
 func CheckExceptionMenu(textMessage string) bool {
 	exceptionString := map[string]bool{
 		"Easy":                                true,
@@ -244,7 +248,7 @@ func CheckExceptionMenu(textMessage string) bool {
 	}
 }
 
-// CheckExceptionCommand return result of check on exceptions (commandMessage)
+// CheckExceptionCommand return result of check on exceptions. Commands received from telegram (commandMessage)
 func CheckExceptionCommand(botCommand string) bool {
 	exceptionString := map[string]bool{
 		"start":        true,
@@ -261,7 +265,7 @@ func CheckExceptionCommand(botCommand string) bool {
 	}
 }
 
-// CheckExceptionDB ...
+// CheckExceptionDB return result of check on exceptions. Result from DB (textMessage)
 func CheckExceptionDB(messageText string, userId int64) (bool, string) {
 	resultCheckAnswer := data.CheckAnswer(messageText, userId)
 

@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   app-tgbot:
-    build: ./rateBot
+    build: ./code
     #command: ./app-tgbot
     ports:
       - "10.128.0.2:8000:8000"

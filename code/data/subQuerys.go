@@ -1,3 +1,4 @@
+// Package data provide subQueries for work in primaryQueries/*
 package data
 
 import (
@@ -5,7 +6,7 @@ import (
 	"fmt"
 )
 
-// MaxIdValue ...
+// MaxIdValue getting max id for each table (easy_economic_exercises/medium_economic_exercises)
 func MaxIdValue() (int, int) {
 	db := ConnectDB()
 
@@ -38,7 +39,7 @@ func MaxIdValue() (int, int) {
 	return maxIdEasy, maxIdMedium
 }
 
-// UserProgress ...
+// UserProgress getting user progress value from (user_results)
 func UserProgress(userId int64) int {
 	db := ConnectDB()
 

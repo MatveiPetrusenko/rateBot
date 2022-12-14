@@ -1,4 +1,4 @@
-// Package configuration decode json message  /*
+// Package configuration decode json message /*
 package configuration
 
 import (
@@ -185,7 +185,7 @@ type Rates struct {
 	ZWL float64 `json:"ZWL"`
 }
 
-// ParsingJSON ...
+// ParsingJSON in correct format for use next
 func ParsingJSON() string {
 	client := http.Client{}
 	request, err := http.NewRequest("GET", "https://api.exchangerate.host/latest?base=USD", nil)

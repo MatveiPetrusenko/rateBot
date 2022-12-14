@@ -1,3 +1,4 @@
+// Package configuration  /*
 package configuration
 
 import (
@@ -5,6 +6,7 @@ import (
 	"strconv"
 )
 
+// Recalculation recalculate the rate in the given format
 func Recalculation(flagStr string, m map[string]string) map[string]string {
 	var divisor, err = strconv.ParseFloat(m[flagStr], 64)
 	if err == nil {

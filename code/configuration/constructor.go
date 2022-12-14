@@ -1,3 +1,4 @@
+// Package configuration  /*
 package configuration
 
 var mainValueCurrency = make(map[string]string)
@@ -8,6 +9,7 @@ var flagsCurrency = []string{"🇺🇸", "🇪🇺", "🇬🇧", "🇨🇭", "�
 
 var date string
 
+// InitializeMassage initial each element with country flag
 func InitializeMassage(arrCurrency [8]string, dateReport string) string {
 	mainValueCurrency["🇺🇸"] = arrCurrency[0]
 	mainValueCurrency["🇪🇺"] = arrCurrency[1]
@@ -27,6 +29,7 @@ func InitializeMassage(arrCurrency [8]string, dateReport string) string {
 	return message
 }
 
+// MakeMessage build message
 func MakeMessage(flagStr string) string {
 	var message, headStr string
 
@@ -48,6 +51,7 @@ func MakeMessage(flagStr string) string {
 	return date + headStr + message
 }
 
+// SubMessage keep previous response and represent new message
 func SubMessage(flagStr string) string {
 	subValueCurrency := Recalculation(flagStr, mainValueCurrency)
 

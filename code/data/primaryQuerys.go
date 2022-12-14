@@ -1,6 +1,4 @@
-/*
-Package data provides functionality for connect to DataBase
-*/
+// Package data provides functionality for work with DB /*
 package data
 
 import (
@@ -9,7 +7,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// GetEasyResult ...
+// GetEasyResult return data string from table (easy_economic_exercises) or limit string if exercise is not exist
 func GetEasyResult(userId int64) string {
 	db := ConnectDB()
 
@@ -18,7 +16,7 @@ func GetEasyResult(userId int64) string {
 	var dataExercise string
 	var exerciseId int
 
-	//return max id exercise
+	//getting max id exercise
 	maxIdEasy, _ := MaxIdValue()
 
 	//check user table
@@ -50,7 +48,7 @@ func GetEasyResult(userId int64) string {
 	return dataExercise
 }
 
-// GetMediumResult ...
+// GetMediumResult return data string from table (medium_economic_exercises) or limit string if exercise is not exist
 func GetMediumResult(userId int64) string {
 	db := ConnectDB()
 
@@ -59,7 +57,7 @@ func GetMediumResult(userId int64) string {
 	var dataExercise string
 	var exerciseId int
 
-	//return max id exercise
+	//getting max id exercise
 	maxIdEasy, maxIdMedium := MaxIdValue()
 
 	//check user table
@@ -91,7 +89,7 @@ func GetMediumResult(userId int64) string {
 	return dataExercise
 }
 
-// AddUser ...
+// AddUser create new row for new user in table (user_results)
 func AddUser(id int64, userName string) {
 	db := ConnectDB()
 
@@ -103,7 +101,7 @@ func AddUser(id int64, userName string) {
 	}
 }
 
-// CheckUser ...
+// CheckUser check table (user_results), record exist ot not
 func CheckUser(id int64) bool {
 	db := ConnectDB()
 
@@ -129,7 +127,7 @@ func CheckUser(id int64) bool {
 	}
 }
 
-// IncreaseUserProgress ...
+// IncreaseUserProgress increase on +1 progress of user in table (user_results)
 func IncreaseUserProgress(userId int64) {
 	db := ConnectDB()
 
@@ -141,7 +139,7 @@ func IncreaseUserProgress(userId int64) {
 	}
 }
 
-// CheckAnswer ...
+// CheckAnswer checking for the correctness of the answer in one of the tables (easy_economic_exercises/medium_economic_exercises)
 func CheckAnswer(textMessage string, userId int64) bool {
 	db := ConnectDB()
 
@@ -149,13 +147,12 @@ func CheckAnswer(textMessage string, userId int64) bool {
 
 	var dataAnswer string
 
-	//
+	//getting user progress
 	userProgressValue := UserProgress(userId)
 
-	//
+	//getting max id value
 	maxIdEasy, _ := MaxIdValue()
 
-	//
 	switch userProgressValue {
 	case 0:
 		userProgressValue = 1
@@ -190,20 +187,20 @@ func CheckAnswer(textMessage string, userId int64) bool {
 	}
 }
 
-// IncreaseUserScore ...!!!!!!!!!!!!!!!rewrite and opt
+// IncreaseUserScore transmits score from tables (easy_economic_exercises/medium_economic_exercises) for each solved exercise in different table (user_results)
 func IncreaseUserScore(userId int64) (int, int) {
 	db := ConnectDB()
 
 	defer db.Close()
 
-	//
+	//getting user progress
 	progressValue := UserProgress(userId)
 
-	//
+	//getting max id value
 	maxIdEasy, maxIdMedium := MaxIdValue()
 
 	request := "UPDATE user_results SET score_point = score_point + (SELECT score_point FROM easy_economic_exercises WHERE exercise_id = $1) WHERE user_id = $2;"
-	//
+
 	if progressValue <= maxIdEasy {
 		request = "UPDATE user_results SET score_point = score_point + (SELECT score_point FROM easy_economic_exercises WHERE exercise_id = $1) WHERE user_id = $2;"
 	} else if maxIdEasy < progressValue && progressValue <= maxIdMedium {
@@ -214,7 +211,6 @@ func IncreaseUserScore(userId int64) (int, int) {
 		fmt.Println(err)
 	}
 
-	//
 	var scoreData int
 
 	request = "SELECT score_point FROM user_results WHERE user_id = $1"
@@ -235,7 +231,6 @@ func IncreaseUserScore(userId int64) (int, int) {
 		}
 	}
 
-	//temporally
 	request = "SELECT score_point FROM user_results WHERE user_id = $1"
 
 	var totalScore int
@@ -253,7 +248,7 @@ func IncreaseUserScore(userId int64) (int, int) {
 	return totalScore, scoreData
 }
 
-// UserScore ...
+// UserScore getting total score for user from table (user_results)
 func UserScore(userId int64) int {
 	db := ConnectDB()
 
@@ -276,7 +271,7 @@ func UserScore(userId int64) int {
 	return totalScore
 }
 
-// ResetUserScoreAndProgress ...
+// ResetUserScoreAndProgress reset user score and progress in table (user_results)
 func ResetUserScoreAndProgress(userId int64) {
 	db := ConnectDB()
 
