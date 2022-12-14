@@ -1,0 +1,1 @@
+### [click me to try](https://t.me/CurrentRate_Bot)
