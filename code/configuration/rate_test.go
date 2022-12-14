@@ -2,6 +2,7 @@ package configuration_test
 
 import (
 	"encoding/json"
+	"github.com/matthew/rateBot/configuration"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -188,7 +189,7 @@ func TestParsingJSON(t *testing.T) {
 		}
 	}`
 
-	var result CurrencyData
+	var result configuration.CurrencyData
 
 	err := json.Unmarshal([]byte(s), &result)
 	assert.NoError(t, err)
