@@ -1,2 +1,2 @@
-FROM postgres:14.5
+FROM postgres:latest
 COPY dbbot.sql /docker-entrypoint-initdb.d/

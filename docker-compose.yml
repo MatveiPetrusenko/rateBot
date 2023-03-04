@@ -1,24 +1,35 @@
 version: '3.8'
-services:
-  app-tgbot:
-    build: ./code
-    #command: ./app-tgbot
-    ports:
-      - "10.128.0.2:8000:8000"
-    depends_on:
-      - db
-    #entrypoint:
-    network_mode: bridge
 
-  db:
-    image: postgres:14.5
+networks:
+  network:
+    driver: bridge
+
+services:
+  tgbot:
+    build: ./code
+    container_name: tgbot
+    ports:
+      - "8000:8000"
+    environment:
+      TGTOKEN: "${TGTOKEN}"
+    depends_on:
+      - postgresdb
     restart: always
+    networks:
+      - network
+
+
+  postgresdb:
+    image: postgres:latest
+    container_name: postgres
     build:
       context: ./database
     environment:
-      - POSTGRES_USER=bot_admin
-      - POSTGRES_PASSWORD=UbuLock!
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
     ports:
-      - "10.128.0.2:5432:5432"
-    network_mode: bridge
-    #192.168.0.109
+      - "5433:5432"
+    restart: always
+    networks:
+      - network

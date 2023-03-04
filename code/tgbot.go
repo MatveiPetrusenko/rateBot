@@ -7,12 +7,13 @@ import (
 	"github.com/matthew/rateBot/data"
 	"github.com/matthew/rateBot/handler"
 	"log"
+	"os"
 	"strconv"
 )
 
 // telegramBot represent opportunity connect by token from generated botFather
 func telegramBot() (*tgbotapi.BotAPI, tgbotapi.UpdatesChannel) {
-	bot, err := tgbotapi.NewBotAPI("5147742910:AAGzy-TUkxpuLkEKej0kh2Z3gQJ1jICQgns")
+	bot, err := tgbotapi.NewBotAPI(os.Getenv("TGTOKEN"))
 	if err != nil {
 		log.Panic(err)
 	}
